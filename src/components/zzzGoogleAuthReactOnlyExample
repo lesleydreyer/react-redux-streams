@@ -1,0 +1,57 @@
+import React from 'react';
+
+class GoogleAuth extends React.Component {
+    state = { isSignedIn: null }
+
+    componentDidMount() {
+        window.gapi.load('client:auth2', () => {
+            window.gapi.client.init({
+                clientId: '124407159180-555s7lm7rj7brm1382futvlpo7v3unka.apps.googleusercontent.com',
+                scope: 'email'
+            }).then(() => {
+                this.auth = window.gapi.auth2.getAuthInstance();
+                this.setState({ isSignedIn: this.auth.isSignedIn.get() });
+                //google api (if you run chrome console const auth = gapi.auth2.getAuthInstance()), then auth, then auth.signIn(), then auth.isSignedIn.get() can explore api on chrome
+                this.auth.isSignedIn.listen(this.onAuthChange);
+            });
+        });
+    }
+
+    onAuthChange = () => {
+        this.setState({ isSignedIn: this.auth.isSignedIn.get() });
+    };
+
+    onSignInClick = () => {
+        this.auth.signIn();
+    };
+
+    onSignOutClick = () => {
+        this.auth.signOut();
+    };
+
+
+
+    renderAuthButton() {
+        if (this.state.isSignedIn === null) {
+            return null;
+        } else if (this.state.isSignedIn) {
+            return <button onClick={this.onSignOutClick/*leave () off cuz that would cause sign as soon as loads on screen*/} className="ui red google button">
+                <i className="google icon" />
+                Sign Out
+            </button>
+        } else {
+            return <button onClick={this.onSignInClick} className="ui red google button">
+                <i className="google icon" />
+                Sign In with Google
+            </button>
+        }
+    }
+
+    render() {
+        return (
+            <div>{this.renderAuthButton()}</div>
+        )
+    }
+}
+
+export default GoogleAuth;
